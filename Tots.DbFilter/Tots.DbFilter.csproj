@@ -9,9 +9,11 @@
   <ItemGroup>
     <None Remove="Entities\" />
     <None Remove="Extensions\" />
+    <None Remove="Wheres\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Wheres\" />
   </ItemGroup>
 </Project>
