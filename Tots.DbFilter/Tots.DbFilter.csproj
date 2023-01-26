@@ -11,11 +11,21 @@
     <None Remove="Extensions\" />
     <None Remove="Wheres\" />
     <None Remove="Responses\" />
+    <None Remove="Requests\" />
+    <None Remove="MediatR" />
+    <None Remove="MediatR.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="MediatR.Contracts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="Extensions\" />
     <Folder Include="Wheres\" />
     <Folder Include="Responses\" />
+    <Folder Include="Requests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="MediatR.Contracts" Version="1.0.1" />
   </ItemGroup>
 </Project>
