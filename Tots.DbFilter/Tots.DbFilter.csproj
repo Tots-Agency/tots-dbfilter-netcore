@@ -4,6 +4,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Tots DbFilter</Title>
+    <Authors>matiascamiletti</Authors>
+    <Company>Tots</Company>
+    <Description>Libreria para fltrar desde la tabla de una base de datos.</Description>
+    <PackageProjectUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
