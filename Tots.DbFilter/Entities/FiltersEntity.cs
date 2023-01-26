@@ -3,9 +3,7 @@ namespace Tots.DbFilter.Entities
 {
 	public class FiltersEntity
 	{
-		public FiltersEntity()
-		{
-		}
-	}
+        public WhereEntity[]? Wheres { get; set; }
+    }
 }
 
