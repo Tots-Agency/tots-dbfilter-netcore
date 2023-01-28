@@ -53,7 +53,7 @@ namespace Tots.DbFilter
                 if (this.GetQueryRequest().GetSums().Count() > 0)
                 {
                     var groupsBy = string.Join(",", this.GetQueryRequest().GetGroups().ToArray());
-                    var resultGroups = query.GroupBy(groupsBy).Select("new (Key, Sum(it.Status) AS StatusSum, FirstOrDefault() as FirstItem)").ToDynamicList();
+                    var resultGroups = query.GroupBy(groupsBy).Select("new (Key, " + ConvertedSumsToConditionString() + ", FirstOrDefault() as FirstItem)").ToDynamicList();
                     this.ProcessSumsColumns(result, resultGroups);
                 }
             }
@@ -69,6 +69,20 @@ namespace Tots.DbFilter
                 Data = result,
                 Total = count
             };
+        }
+
+        protected string ConvertedSumsToConditionString()
+        {
+            string response = "";
+            foreach (string sum in this.GetQueryRequest().GetSums())
+            {
+                if (response.Length > 0)
+                {
+                    response = response + ", ";
+                }
+                response = response + "Sum(it." + sum + ") AS " + sum + "Sum";
+            }
+            return response;
         }
 
         protected void ProcessSumsColumns(List<T> result, List<dynamic> resultGroups)
