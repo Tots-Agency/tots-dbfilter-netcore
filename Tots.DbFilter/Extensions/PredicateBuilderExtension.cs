@@ -90,6 +90,27 @@ namespace Tots.DbFilter.Extensions
             }
             return result;
         }
+
+        public static Expression<Func<T, object>> GetGroupByExpression<T>(string propertyName)
+        {
+            var parameter = Expression.Parameter(typeof(T));
+            var property = Expression.Property(parameter, propertyName);
+            var lambda = Expression.Lambda<Func<T, object>>(property, parameter);
+            return lambda;
+        }
+
+        public static Expression<Func<T, object>> GroupByExpressionList<T>(string[] propertyNames)
+        {
+            var properties = propertyNames.Select(name => typeof(T).GetProperty(name.FirstCharToUpper())).ToArray();
+            var propertyTypes = properties.Select(p => p.PropertyType).ToArray();
+            var tupleTypeDefinition = typeof(Tuple).Assembly.GetType("System.Tuple`" + properties.Length);
+            var tupleType = tupleTypeDefinition.MakeGenericType(propertyTypes);
+            var constructor = tupleType.GetConstructor(propertyTypes);
+            var param = Expression.Parameter(typeof(T), "item");
+            var body = Expression.New(constructor, properties.Select(p => Expression.Property(param, p)));
+            var expr = Expression.Lambda<Func<T, object>>(body, param);
+            return expr;
+        }
     }
 }
 

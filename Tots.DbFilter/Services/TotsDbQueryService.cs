@@ -12,6 +12,7 @@ namespace Tots.DbFilter.Services
         protected int _page = 1;
         protected int _perPage = 50;
         protected List<AbstractWhere> _wheres = new List<AbstractWhere>();
+        protected List<string> _groups = new List<string>();
 
         public TotsDbQueryService(TotsDbListRequest<T> request)
         {
@@ -25,6 +26,7 @@ namespace Tots.DbFilter.Services
             this._perPage = this._request.PerPage ?? 50;
             this.ProcessData();
             this.ProcessDataString();
+            this.ProcessGroups();
         }
 
         protected void ProcessWheres(WhereEntity[] wheres)
@@ -82,6 +84,13 @@ namespace Tots.DbFilter.Services
             }
         }
 
+        protected void ProcessGroups()
+		{
+            if (this._request.Groups == null || this._request.Groups.Length == 0) return;
+
+			this._groups = this._request.Groups!.Split(",").ToList<string>();
+        }
+
         protected string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
@@ -101,6 +110,11 @@ namespace Tots.DbFilter.Services
         public List<AbstractWhere> GetWheres()
         {
             return this._wheres;
+        }
+        
+        public List<string> GetGroups()
+        {
+            return this._groups;
         }
     }
 }

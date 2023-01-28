@@ -5,6 +5,7 @@ using Tots.DbFilter.Responses;
 using Tots.DbFilter.Services;
 using Tots.DbFilter.Wheres;
 using Microsoft.EntityFrameworkCore;
+using Tots.DbFilter.Extensions;
 
 namespace Tots.DbFilter
 {
@@ -40,8 +41,19 @@ namespace Tots.DbFilter
                 query = query.Where(where.ExecutePredicate<T>());
             }
 
-            var result = await query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToListAsync();
-            var count = await query.CountAsync();
+            // Process All Groups
+            List<T> result;
+            int count;
+            if (this.GetQueryRequest().GetGroups().Count() > 0)
+            {
+                result = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
+                count = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Count();
+            }
+            else
+            {
+                result = query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
+                count = await query.CountAsync();
+            }
 
             return new TotsDbListResponse<T>
             {

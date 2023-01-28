@@ -12,6 +12,7 @@ namespace Tots.DbFilter.Requests
         public int? PerPage { get; set; }
         public string? Filters { get; set; }
         public string? FiltersString { get; set; }
+        public string? Groups { get; set; }
     }
 }
 
