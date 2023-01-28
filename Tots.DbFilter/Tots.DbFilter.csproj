@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
