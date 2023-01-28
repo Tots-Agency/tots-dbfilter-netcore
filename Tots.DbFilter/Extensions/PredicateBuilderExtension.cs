@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Text.Json;
+using System.ComponentModel;
 
 namespace Tots.DbFilter.Extensions
 {
@@ -35,6 +38,31 @@ namespace Tots.DbFilter.Extensions
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
             return resultexp;
             //return predicate.And(resultexp);
+        }
+
+        public static Expression<Func<T, bool>> Contains<T>(string key, dynamic value)
+        {
+            Expression<Func<T, bool>> predicate = PredicateBuilderExtension.True<T>();
+            var predString = predicate.ToString();
+            var prop = getProperty<T>(key);
+            var parameter = Expression.Parameter(typeof(T));
+            var propertyParameter = getParameterExperession(parameter, key);
+            var property = Expression.Property(propertyParameter, prop);
+            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+            Type t = typeof(List<>).MakeGenericType(type);
+            var list = (IList)Activator.CreateInstance(t);
+            var valueDeserialize = JsonSerializer.Deserialize<dynamic[]>(value);
+            foreach (var item in valueDeserialize)
+            {
+                var converter = TypeDescriptor.GetConverter(type);
+                list.Add(converter.ConvertFrom(item.ToString()));
+            }
+
+            var valueExp = Expression.Constant(list);
+            var expr = Expression.Equal(Expression.Call(valueExp, valueExp.Type.GetMethod("Contains"), property), Expression.Constant(true));
+            var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
+            return resultexp;
         }
 
         private static PropertyInfo getProperty<T>(string name)

@@ -8,6 +8,7 @@ namespace Tots.DbFilter.Wheres
 	{
         public static string TYPE_LIKES = "likes";
         public static string TYPE_EQUAL = "equal";
+        public static string TYPE_IN = "in";
 
         protected string _type = "";
         protected string _key = "";

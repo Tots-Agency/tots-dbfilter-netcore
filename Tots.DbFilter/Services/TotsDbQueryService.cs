@@ -35,6 +35,10 @@ namespace Tots.DbFilter.Services
                 {
                     _wheres.Add(new EqualWhere(where));
                 }
+                else if (where.Type == AbstractWhere.TYPE_IN)
+                {
+                    _wheres.Add(new InWhere(where));
+                }
             }
         }
 
