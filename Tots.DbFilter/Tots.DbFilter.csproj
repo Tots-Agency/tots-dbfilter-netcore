@@ -26,6 +26,7 @@
     <None Remove="MediatR.Contracts" />
     <None Remove="Services\" />
     <None Remove="Microsoft.EntityFrameworkCore" />
+    <None Remove="System.Linq.Dynamic.Core" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
@@ -40,5 +41,6 @@
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="MediatR.Contracts" Version="1.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.24" />
   </ItemGroup>
 </Project>

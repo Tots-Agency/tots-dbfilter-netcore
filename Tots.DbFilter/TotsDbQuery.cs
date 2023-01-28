@@ -6,6 +6,7 @@ using Tots.DbFilter.Services;
 using Tots.DbFilter.Wheres;
 using Microsoft.EntityFrameworkCore;
 using Tots.DbFilter.Extensions;
+using System.Linq.Dynamic.Core;
 
 namespace Tots.DbFilter
 {
@@ -48,6 +49,13 @@ namespace Tots.DbFilter
             {
                 result = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
                 count = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Count();
+
+                if (this.GetQueryRequest().GetSums().Count() > 0)
+                {
+                    var groupsBy = string.Join(",", this.GetQueryRequest().GetGroups().ToArray());
+                    var resultGroups = query.GroupBy(groupsBy).Select("new (Key, Sum(it.Status) AS StatusSum, FirstOrDefault() as FirstItem)").ToDynamicList();
+                    this.ProcessSumsColumns(result, resultGroups);
+                }
             }
             else
             {
@@ -61,6 +69,48 @@ namespace Tots.DbFilter
                 Data = result,
                 Total = count
             };
+        }
+
+        protected void ProcessSumsColumns(List<T> result, List<dynamic> resultGroups)
+        {
+            foreach(T item in result)
+            {
+                ProcessSumInItem(item, resultGroups);
+            }
+        }
+
+        protected void ProcessSumInItem(T item, List<dynamic> resultGroups)
+        {
+            foreach(string sum in this.GetQueryRequest().GetSums())
+            {
+                string firstGroupBy = this.GetQueryRequest().GetGroups()[0];
+
+                dynamic itemGroupValue = item.GetType().GetProperty(firstGroupBy).GetValue(item);
+
+                //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
+
+                dynamic itemGrup = GetResultItem(firstGroupBy, itemGroupValue, resultGroups);
+
+                dynamic newValue = itemGrup.GetType().GetProperty(firstGroupBy + "Sum").GetValue(itemGrup);
+
+                item.GetType().GetProperty(firstGroupBy).SetValue(item, newValue);
+            }
+        }
+
+        protected dynamic GetResultItem(string key, dynamic value, List<dynamic> resultGroups)
+        {
+            foreach(dynamic item in resultGroups)
+            {
+                dynamic firstItem = item.GetType().GetProperty("FirstItem").GetValue(item);
+                dynamic valueKey = firstItem.GetType().GetProperty(key).GetValue(firstItem);
+
+                if (valueKey == value)
+                {
+                    return item;
+                }
+            }
+
+            return null;
         }
     }
 }

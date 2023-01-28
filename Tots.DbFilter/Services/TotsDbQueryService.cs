@@ -13,6 +13,7 @@ namespace Tots.DbFilter.Services
         protected int _perPage = 50;
         protected List<AbstractWhere> _wheres = new List<AbstractWhere>();
         protected List<string> _groups = new List<string>();
+        protected List<string> _sums = new List<string>();
 
         public TotsDbQueryService(TotsDbListRequest<T> request)
         {
@@ -27,6 +28,7 @@ namespace Tots.DbFilter.Services
             this.ProcessData();
             this.ProcessDataString();
             this.ProcessGroups();
+            this.ProcessSums();
         }
 
         protected void ProcessWheres(WhereEntity[] wheres)
@@ -91,6 +93,13 @@ namespace Tots.DbFilter.Services
 			this._groups = this._request.Groups!.Split(",").ToList<string>();
         }
 
+        protected void ProcessSums()
+		{
+            if (this._request.Sums == null || this._request.Sums.Length == 0) return;
+
+            this._sums = this._request.Sums!.Split(",").ToList<string>();
+        }
+
         protected string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
@@ -115,6 +124,11 @@ namespace Tots.DbFilter.Services
         public List<string> GetGroups()
         {
             return this._groups;
+        }
+
+        public List<string> GetSums()
+        {
+            return this._sums;
         }
     }
 }

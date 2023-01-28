@@ -13,6 +13,7 @@ namespace Tots.DbFilter.Requests
         public string? Filters { get; set; }
         public string? FiltersString { get; set; }
         public string? Groups { get; set; }
+        public string? Sums { get; set; }
     }
 }
 
