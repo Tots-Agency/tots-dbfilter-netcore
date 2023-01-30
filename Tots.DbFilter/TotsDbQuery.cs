@@ -65,7 +65,9 @@ namespace Tots.DbFilter
 
             return new TotsDbListResponse<T>
             {
+                CurrentPage = this._request.GetPage(),
                 PerPage = this._request.GetPerPage(),
+                LastPage = int.Parse((count / this._request.GetPerPage()).ToString()),
                 Data = result,
                 Total = count
             };
