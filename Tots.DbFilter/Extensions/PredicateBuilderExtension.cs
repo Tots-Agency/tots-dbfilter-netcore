@@ -26,8 +26,27 @@ namespace Tots.DbFilter.Extensions
 
         public static Expression<Func<T, bool>> Equal<T>(string key, dynamic value)
         {
-            Expression<Func<T, bool>> predicate = PredicateBuilderExtension.True<T>();
-            var predString = predicate.ToString();
+            // Verificar si el primer key es un List y en un futuro que pueda ser recursivo
+            if (IsRelation<T>(key))
+            {
+                var split = key.Split(".");
+                ParameterExpression paramC = Expression.Parameter(typeof(T), "c");
+                MemberExpression memberOrders = Expression.Property(paramC, split[0]);
+                Type typeOrder = GetTypeReal<T>(key);
+                ParameterExpression paramO = Expression.Parameter(typeOrder, "o");
+                MemberExpression memberOrderType = Expression.Property(paramO, split[1]);
+
+                var propFinal = getProperty<T>(key);
+
+                var converter = TypeDescriptor.GetConverter(propFinal.PropertyType);
+                ConstantExpression constantOrderType = Expression.Constant(converter.ConvertFrom(value.ToString()), propFinal.PropertyType);
+                BinaryExpression equal = Expression.Equal(memberOrderType, constantOrderType);
+                LambdaExpression lambdaO = Expression.Lambda(equal, paramO);
+                MethodCallExpression any = Expression.Call(typeof(Enumerable), "Any", new Type[] { typeOrder }, memberOrders, lambdaO);
+                return Expression.Lambda<Func<T, bool>>(any, paramC);
+            }
+
+
             var prop = getProperty<T>(key);
             var parameter = Expression.Parameter(typeof(T));
             var propertyParameter = getParameterExperession(parameter, key);
@@ -37,7 +56,6 @@ namespace Tots.DbFilter.Extensions
             var expr = Expression.Equal(property, valueExp);
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
             return resultexp;
-            //return predicate.And(resultexp);
         }
 
         public static Expression<Func<T, bool>> Contains<T>(string key, dynamic value)
@@ -74,7 +92,15 @@ namespace Tots.DbFilter.Extensions
             foreach (var item in split)
             {
                 result = type.GetProperty(item);
-                type = result.PropertyType;
+
+                if (result.PropertyType.IsGenericType && result.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    type = result.PropertyType.GetGenericArguments()[0];
+                }
+                else
+                {
+                    type = result.PropertyType;
+                }
             }
             return result;
         }
@@ -110,6 +136,53 @@ namespace Tots.DbFilter.Extensions
             var body = Expression.New(constructor, properties.Select(p => Expression.Property(param, p)));
             var expr = Expression.Lambda<Func<T, object>>(body, param);
             return expr;
+        }
+
+        public static Type GetTypeReal<T>(string name)
+        {
+            var split = name.Split(".");
+            split = split.Take(split.Count() - 1).ToArray();
+            var type = typeof(T);
+
+            PropertyInfo result = null;
+            foreach (var item in split)
+            {
+                result = type.GetProperty(item);
+
+                if (result.PropertyType.IsGenericType && result.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    type = result.PropertyType.GetGenericArguments()[0];
+                }
+                else
+                {
+                    type = result.PropertyType;
+                }
+
+            }
+            return type;
+        }
+
+        public static bool IsRelation<T>(string name)
+        {
+            var split = name.Split(".");
+            var type = typeof(T);
+
+            PropertyInfo result = null;
+            foreach (var item in split)
+            {
+                result = type.GetProperty(item);
+
+                if (result.PropertyType.IsGenericType && result.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    return true;
+                }
+                else
+                {
+                    type = result.PropertyType;
+                }
+
+            }
+            return false;
         }
     }
 }
