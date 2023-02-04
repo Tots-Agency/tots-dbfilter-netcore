@@ -43,6 +43,10 @@ namespace Tots.DbFilter.Services
                 {
                     _wheres.Add(new InWhere(where));
                 }
+                else if (where.Type == AbstractWhere.TYPE_LIKE)
+                {
+                    _wheres.Add(new LikeWhere(where));
+                }
             }
         }
 
