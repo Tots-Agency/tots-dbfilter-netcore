@@ -6,6 +6,7 @@ namespace Tots.DbFilter.Entities
         public string? Type { get; set; }
         public string? Key { get; set; }
         public dynamic? Value { get; set; }
+        public List<string>? Keys { get; set; }
     }
 }
 

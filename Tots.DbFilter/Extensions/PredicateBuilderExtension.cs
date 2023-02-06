@@ -71,6 +71,37 @@ namespace Tots.DbFilter.Extensions
             return resultexp;
         }
 
+        public static Expression<Func<T, bool>> Likes<T>(List<string> keys, dynamic value)
+        {
+            Expression<Func<T, bool>> predicate = PredicateBuilderExtension.True<T>();
+            var parameter = Expression.Parameter(typeof(T));
+
+            bool isFirst = true;
+            foreach (string key in keys)
+            {
+                var prop = getProperty<T>(key);
+                var propertyParameter = getParameterExperession(parameter, key);
+                var property = Expression.Property(propertyParameter, prop);
+                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                var valueExp = Expression.Constant(value);
+
+                BinaryExpression expr = Expression.Equal(Expression.Call(property, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExp), Expression.Constant(true));
+
+                if (isFirst)
+                {
+                    predicate = Expression.Lambda<Func<T, bool>>(expr, parameter);
+                    isFirst = false;
+                }
+                else
+                {
+                    predicate = Expression.Lambda<Func<T, bool>>(Expression.OrElse(predicate.Body, expr), parameter);
+                }
+
+            }
+
+            return predicate;
+        }
+
         public static Expression<Func<T, bool>> Contains<T>(string key, dynamic value)
         {
             Expression<Func<T, bool>> predicate = PredicateBuilderExtension.True<T>();
