@@ -14,6 +14,7 @@ namespace Tots.DbFilter.Services
         protected List<AbstractWhere> _wheres = new List<AbstractWhere>();
         protected List<string> _groups = new List<string>();
         protected List<string> _sums = new List<string>();
+        protected List<string> _withs = new List<string>();
 
         public TotsDbQueryService(TotsDbListRequest<T> request)
         {
@@ -29,6 +30,7 @@ namespace Tots.DbFilter.Services
             this.ProcessDataString();
             this.ProcessGroups();
             this.ProcessSums();
+            this.ProcessWiths();
         }
 
         protected void ProcessWheres(WhereEntity[] wheres)
@@ -42,6 +44,14 @@ namespace Tots.DbFilter.Services
                 else if (where.Type == AbstractWhere.TYPE_IN)
                 {
                     _wheres.Add(new InWhere(where));
+                }
+                else if (where.Type == AbstractWhere.TYPE_LIKE)
+                {
+                    _wheres.Add(new LikeWhere(where));
+                }
+                else if (where.Type == AbstractWhere.TYPE_LIKES)
+                {
+                    _wheres.Add(new LikesWhere(where));
                 }
             }
         }
@@ -93,6 +103,13 @@ namespace Tots.DbFilter.Services
 			this._groups = this._request.Groups!.Split(",").ToList<string>();
         }
 
+        protected void ProcessWiths()
+		{
+            if (this._request.Withs == null || this._request.Withs.Length == 0) return;
+
+			this._withs = this._request.Withs!.Split(",").ToList<string>();
+        }
+
         protected void ProcessSums()
 		{
             if (this._request.Sums == null || this._request.Sums.Length == 0) return;
@@ -129,6 +146,11 @@ namespace Tots.DbFilter.Services
         public List<string> GetSums()
         {
             return this._sums;
+        }
+
+        public List<string> GetWiths()
+        {
+            return this._withs;
         }
     }
 }
