@@ -31,7 +31,14 @@ namespace Tots.DbFilter
             return this._request;
         }
 
+        public delegate IQueryable<T> ExtraQuery(IQueryable<T> query);
+
         public async Task<TotsDbListResponse<T>> Execute()
+        {
+            return await Execute(null);
+        }
+
+        public async Task<TotsDbListResponse<T>> Execute(ExtraQuery? extraQuery)
         {
             DbSet<T> dbSet = _context.Set<T>();
             IQueryable<T> query = dbSet.IgnoreAutoIncludes<T>();
