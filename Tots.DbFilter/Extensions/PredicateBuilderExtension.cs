@@ -24,7 +24,7 @@ namespace Tots.DbFilter.Extensions
             return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(expr1.Body, invokedExpr), expr1.Parameters);
         }
 
-        public static Expression<Func<T, bool>> Equal<T>(string key, dynamic value)
+        public static Expression<Func<T, bool>> Equal<T>(string key, dynamic? value)
         {
             // Verificar si el primer key es un List y en un futuro que pueda ser recursivo
             if (IsRelation<T>(key))

@@ -21,13 +21,17 @@ namespace Tots.DbFilter.Wheres
 
             if (value == null)
             {
-                return PredicateBuilderExtension.Equal<T>(key, "");
+                return PredicateBuilderExtension.Equal<T>(key, null);
             }
 
             int valueInt;
             if (Int32.TryParse(value.ToString(), out valueInt))
             {
                 return PredicateBuilderExtension.Equal<T>(key, valueInt);
+            }
+
+            if(value is bool){
+                return PredicateBuilderExtension.Equal<T>(key, (bool)value);
             }
 
             return PredicateBuilderExtension.Equal<T>(key, value.ToString()!);
