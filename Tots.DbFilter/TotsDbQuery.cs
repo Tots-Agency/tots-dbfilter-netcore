@@ -43,6 +43,10 @@ namespace Tots.DbFilter
             DbSet<T> dbSet = _context.Set<T>();
             IQueryable<T> query = dbSet.IgnoreAutoIncludes<T>();
 
+            if(extraQuery != null){
+                query = extraQuery(query);
+            }
+
             // Process All Withs
             foreach (string with in this.GetQueryRequest().GetWiths())
             {
