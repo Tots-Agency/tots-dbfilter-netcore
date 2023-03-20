@@ -78,6 +78,12 @@ namespace Tots.DbFilter
             {
                 result = query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
                 count = await query.CountAsync();
+
+                if (this.GetQueryRequest().GetSums().Count() > 0)
+                {
+                    var resultGroups = query.GroupBy("1").Select("new (Key, " + ConvertedSumsToConditionString() + ", FirstOrDefault() as FirstItem)").ToDynamicList();
+                    this.ProcessSumsColumnsWithoutGroup(result, resultGroups);
+                }
             }
 
             int lastPage = int.Parse((count / this._request.GetPerPage()).ToString());
@@ -132,6 +138,30 @@ namespace Tots.DbFilter
                 dynamic newValue = itemGrup.GetType().GetProperty(firstGroupBy + "Sum").GetValue(itemGrup);
 
                 item.GetType().GetProperty(firstGroupBy).SetValue(item, newValue);
+            }
+        }
+
+        protected void ProcessSumsColumnsWithoutGroup(List<T> result, List<dynamic> resultGroups)
+        {
+            foreach (T item in result)
+            {
+                ProcessSumInItemWithoutGroup(item, resultGroups);
+            }
+        }
+
+        protected void ProcessSumInItemWithoutGroup(T item, List<dynamic> resultGroups)
+        {
+            foreach (string sum in this.GetQueryRequest().GetSums())
+            {
+                dynamic itemGroupValue = item.GetType().GetProperty(sum).GetValue(item);
+
+                //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
+
+                dynamic itemGrup = GetResultItem(sum, itemGroupValue, resultGroups);
+
+                dynamic newValue = itemGrup.GetType().GetProperty(sum + "Sum").GetValue(itemGrup);
+
+                item.GetType().GetProperty(sum).SetValue(item, newValue);
             }
         }
 
