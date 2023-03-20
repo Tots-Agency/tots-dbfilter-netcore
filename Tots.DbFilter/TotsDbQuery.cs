@@ -80,11 +80,16 @@ namespace Tots.DbFilter
                 count = await query.CountAsync();
             }
 
+            int lastPage = int.Parse((count / this._request.GetPerPage()).ToString());
+            if(lastPage == 0){
+                lastPage = 1;
+            }
+
             return new TotsDbListResponse<T>
             {
                 CurrentPage = this._request.GetPage(),
                 PerPage = this._request.GetPerPage(),
-                LastPage = int.Parse((count / this._request.GetPerPage()).ToString()),
+                LastPage = lastPage,
                 Data = result,
                 Total = count
             };
