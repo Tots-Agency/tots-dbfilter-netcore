@@ -6,9 +6,9 @@ using Tots.DbFilter.Wheres;
 
 namespace Tots.DbFilter.Services
 {
-	public class TotsDbQueryService<T> where T : class
+	public class TotsDbQueryService
     {
-        protected TotsDbListRequest<T> _request;
+        protected TotsDbListRequest<dynamic> _request;
         protected int _page = 1;
         protected int _perPage = 50;
         protected List<AbstractWhere> _wheres = new List<AbstractWhere>();
@@ -16,7 +16,7 @@ namespace Tots.DbFilter.Services
         protected List<string> _sums = new List<string>();
         protected List<string> _withs = new List<string>();
 
-        public TotsDbQueryService(TotsDbListRequest<T> request)
+        public TotsDbQueryService(TotsDbListRequest<dynamic> request)
         {
             this._request = request;
             this.ProcessRequest();
