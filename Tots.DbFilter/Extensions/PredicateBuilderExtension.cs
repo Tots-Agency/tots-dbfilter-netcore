@@ -79,7 +79,7 @@ namespace Tots.DbFilter.Extensions
             var prop = getProperty<T>(key);
             if (prop.PropertyType == typeof(DateTime))
             {
-                return BetweenDates<T>(key, DateTime.Parse(minValue), DateTime.Parse(maxValue));
+                return BetweenDates<T>(key, DateTime.Parse(minValue.ToString()), DateTime.Parse(maxValue.ToString()));
             }
             
             return BetweenNumbers<T>(key, minValue, maxValue);
