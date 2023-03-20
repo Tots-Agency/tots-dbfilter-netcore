@@ -12,21 +12,21 @@ namespace Tots.DbFilter
 {
 	public class TotsDbQuery<T> where T : class
     {
-        protected TotsDbQueryService _request;
+        protected TotsDbQueryService<T> _request;
         protected DbContext _context;
 
-        public TotsDbQuery(DbContext context, TotsDbListRequest<dynamic> request)
+        public TotsDbQuery(DbContext context, TotsDbListRequest<T> request)
         {
             _context = context;
-            this._request = new TotsDbQueryService(request);
+            this._request = new TotsDbQueryService<T>(request);
         }
 
-        public void SetRequest(TotsDbListRequest<dynamic> request)
+        public void SetRequest(TotsDbListRequest<T> request)
         {
-            this._request = new TotsDbQueryService(request);
+            this._request = new TotsDbQueryService<T>(request);
         }
 
-        public TotsDbQueryService GetQueryRequest()
+        public TotsDbQueryService<T> GetQueryRequest()
         {
             return this._request;
         }
