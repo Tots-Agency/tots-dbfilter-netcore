@@ -10,6 +10,7 @@ namespace Tots.DbFilter.Wheres
         public static string TYPE_EQUAL = "equal";
         public static string TYPE_IN = "in";
         public static string TYPE_LIKE = "like";
+        public static string TYPE_BETWEEN = "between";
 
         protected string _type = "";
         protected string _key = "";

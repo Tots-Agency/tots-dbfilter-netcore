@@ -53,7 +53,10 @@ namespace Tots.DbFilter.Extensions
             var property = Expression.Property(propertyParameter, prop);
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
             var valueExp = Expression.Constant(value);
+            //var nullExp = Expression.Constant(null, type);
             var expr = Expression.Equal(property, valueExp);
+            // Probar esto
+            //var expr = Expression.Condition(Expression.Equal(valueExp, Expression.Constant(null)), Expression.Equal(property, nullExp), Expression.Equal(property, Expression.Convert(valueExp, type)));
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
             return resultexp;
         }
@@ -70,6 +73,53 @@ namespace Tots.DbFilter.Extensions
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
             return resultexp;
         }
+
+        public static Expression<Func<T, bool>> Between<T>(string key, dynamic minValue, dynamic maxValue)
+        {
+            var prop = getProperty<T>(key);
+            if (prop.PropertyType == typeof(DateTime))
+            {
+                return BetweenDates<T>(key, DateTime.Parse(minValue), DateTime.Parse(maxValue));
+            }
+            
+            return BetweenNumbers<T>(key, minValue, maxValue);
+        }
+
+        public static Expression<Func<T, bool>> BetweenDates<T>(string key, DateTime startDate, DateTime endDate)
+        {
+            var prop = getProperty<T>(key);
+            var parameter = Expression.Parameter(typeof(T));
+            var propertyParameter = getParameterExperession(parameter, key);
+            var property = Expression.Property(propertyParameter, prop);
+
+            var startDateConstant = Expression.Constant(startDate);
+            var endDateConstant = Expression.Constant(endDate);
+
+            var greaterThanStartDate = Expression.GreaterThanOrEqual(property, startDateConstant);
+            var lessThanEndDate = Expression.LessThanOrEqual(property, endDateConstant);
+
+            var expr = Expression.AndAlso(greaterThanStartDate, lessThanEndDate);
+
+            var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
+            return resultexp;
+        }
+
+        public static Expression<Func<T, bool>> BetweenNumbers<T>(string propertyName, int minValue, int maxValue)
+        {
+            var parameter = Expression.Parameter(typeof(T), "x");
+            var property = Expression.Property(parameter, propertyName);
+            var minValueConstant = Expression.Constant(minValue);
+            var maxValueConstant = Expression.Constant(maxValue);
+
+            var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, minValueConstant);
+            var lessThanOrEqual = Expression.LessThanOrEqual(property, maxValueConstant);
+
+            var binaryExpression = Expression.AndAlso(greaterThanOrEqual, lessThanOrEqual);
+
+            var lambdaExpression = Expression.Lambda<Func<T, bool>>(binaryExpression, parameter);
+            return lambdaExpression;
+        }
+
 
         public static Expression<Func<T, bool>> Likes<T>(List<string> keys, dynamic value)
         {
