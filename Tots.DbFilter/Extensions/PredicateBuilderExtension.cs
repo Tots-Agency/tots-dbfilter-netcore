@@ -77,7 +77,7 @@ namespace Tots.DbFilter.Extensions
         public static Expression<Func<T, bool>> Between<T>(string key, dynamic minValue, dynamic maxValue)
         {
             var prop = getProperty<T>(key);
-            if (prop.PropertyType == typeof(DateTime))
+            if (prop.PropertyType == typeof(DateTime?) || prop.PropertyType == typeof(DateTime))
             {
                 return BetweenDates<T>(key, DateTime.Parse(minValue.ToString()), DateTime.Parse(maxValue.ToString()));
             }
@@ -85,15 +85,24 @@ namespace Tots.DbFilter.Extensions
             return BetweenNumbers<T>(key, minValue, maxValue);
         }
 
-        public static Expression<Func<T, bool>> BetweenDates<T>(string key, DateTime startDate, DateTime endDate)
+        public static Expression<Func<T, bool>> BetweenDates<T>(string key, DateTime? startDate, DateTime? endDate)
         {
             var prop = getProperty<T>(key);
             var parameter = Expression.Parameter(typeof(T));
             var propertyParameter = getParameterExperession(parameter, key);
             var property = Expression.Property(propertyParameter, prop);
 
-            var startDateConstant = Expression.Constant(startDate);
-            var endDateConstant = Expression.Constant(endDate);
+            ConstantExpression startDateConstant;
+            ConstantExpression endDateConstant;
+            if (prop.PropertyType == typeof(DateTime?))
+            {
+                startDateConstant = Expression.Constant(startDate, typeof(DateTime?));
+                endDateConstant = Expression.Constant(endDate, typeof(DateTime?));
+            } else
+            {
+                startDateConstant = Expression.Constant(startDate);
+                endDateConstant = Expression.Constant(endDate);
+            }
 
             var greaterThanStartDate = Expression.GreaterThanOrEqual(property, startDateConstant);
             var lessThanEndDate = Expression.LessThanOrEqual(property, endDateConstant);
