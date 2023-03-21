@@ -33,6 +33,20 @@ namespace Tots.DbFilter.Services
             this.ProcessWiths();
         }
 
+        public void AddWhere(AbstractWhere where)
+        {
+            _wheres.Add(where);
+        }
+        public void AddWhereEqual(string key, dynamic value)
+		{
+			WhereEntity data = new WhereEntity
+			{
+				Key = key,
+				Value = value
+			};
+            _wheres.Add(new EqualWhere(data));
+        }
+
         protected void ProcessWheres(WhereEntity[] wheres)
         {
             foreach (var where in wheres)
@@ -158,4 +172,3 @@ namespace Tots.DbFilter.Services
         }
     }
 }
-
