@@ -29,6 +29,19 @@ namespace Tots.DbFilter.Wheres
 
             return PredicateBuilderExtension.Likes<T>(keys, value.ToString()!);
         }
+
+        public new bool IsSameKey(string key)
+        {
+            foreach (string keyInt in this._keys)
+            {
+                if (this.CleanKey(keyInt) == key)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
 
