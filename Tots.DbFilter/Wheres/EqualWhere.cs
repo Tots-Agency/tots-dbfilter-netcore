@@ -24,6 +24,11 @@ namespace Tots.DbFilter.Wheres
                 return PredicateBuilderExtension.Equal<T>(key, null);
             }
 
+            if (value is bool)
+            {
+                return PredicateBuilderExtension.Equal<T>(key, (bool)value);
+            }
+
             int valueInt;
             if (Int32.TryParse(value.ToString(), out valueInt))
             {
