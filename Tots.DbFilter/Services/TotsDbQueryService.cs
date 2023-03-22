@@ -54,8 +54,14 @@ namespace Tots.DbFilter.Services
                 if (where.IsSameKey(key))
                 {
                     _wheres.Remove(where);
+                    return;
                 }
             }
+        }
+
+        public void RemoveWhereByObject(AbstractWhere where)
+        {
+            _wheres.Remove(where);
         }
 
         protected void ProcessWheres(WhereEntity[] wheres)
