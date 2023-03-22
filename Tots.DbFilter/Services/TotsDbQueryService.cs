@@ -166,6 +166,19 @@ namespace Tots.DbFilter.Services
         {
             return this._wheres;
         }
+
+        public AbstractWhere? GetWhereByKey(string key)
+        {
+            foreach (AbstractWhere where in _wheres)
+            {
+                if (where.IsSameKey(key))
+                {
+                    return where;
+                }
+            }
+
+            return null;
+        }
         
         public List<string> GetGroups()
         {
