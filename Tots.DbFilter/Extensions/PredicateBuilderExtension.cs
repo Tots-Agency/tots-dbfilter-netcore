@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Linq.Expressions;
 using System.Text.Json;
 using System.ComponentModel;
+using System.Reflection.Metadata;
 
 namespace Tots.DbFilter.Extensions
 {
@@ -254,6 +255,34 @@ namespace Tots.DbFilter.Extensions
             var body = Expression.New(constructor, properties.Select(p => Expression.Property(param, p)));
             var expr = Expression.Lambda<Func<T, object>>(body, param);
             return expr;
+        }
+
+        public static IQueryable<T> AddOrderExpression<T>(IQueryable<T> query, String field, String typeOrd, bool isFirst)
+        {
+            String command = "OrderBy";
+            if (isFirst && typeOrd == "asc")
+            {
+                command = "OrderBy";
+            }else if(isFirst && typeOrd == "desc")
+            {
+                command = "OrderByDescending";
+            }
+            else if (typeOrd == "asc")
+            {
+                command = "ThenBy";
+            }
+            else if (typeOrd == "desc")
+            {
+                command = "ThenByDescending";
+            }
+
+            var type = typeof(T);
+            var parameter = Expression.Parameter(type, "p");
+            var prop = getProperty<T>(field);
+            var propertyAccess = Expression.MakeMemberAccess(parameter, prop);
+            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, prop.PropertyType }, query.Expression, Expression.Quote(orderByExpression));
+            return query.Provider.CreateQuery<T>(resultExpression);
         }
 
         public static Type GetType<T>(string name)

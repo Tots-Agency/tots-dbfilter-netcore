@@ -7,6 +7,7 @@ using Tots.DbFilter.Wheres;
 using Microsoft.EntityFrameworkCore;
 using Tots.DbFilter.Extensions;
 using System.Linq.Dynamic.Core;
+using Tots.DbFilter.Entities;
 
 namespace Tots.DbFilter
 {
@@ -45,6 +46,14 @@ namespace Tots.DbFilter
 
             if(extraQuery != null){
                 query = extraQuery(query);
+            }
+
+            // Process All Orders
+            bool isFirstOrder = true;
+            foreach (OrderEntity order in this.GetQueryRequest().GetOrders())
+            {
+                query = PredicateBuilderExtension.AddOrderExpression<T>(query, order.Field!, order.Type!, isFirstOrder);
+                isFirstOrder = false;
             }
 
             // Process All Withs

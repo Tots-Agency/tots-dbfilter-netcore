@@ -15,6 +15,7 @@ namespace Tots.DbFilter.Services
         protected List<string> _groups = new List<string>();
         protected List<string> _sums = new List<string>();
         protected List<string> _withs = new List<string>();
+        protected List<OrderEntity> _orders = new List<OrderEntity>();
 
         public TotsDbQueryService(TotsDbListRequest<T> request)
         {
@@ -104,6 +105,10 @@ namespace Tots.DbFilter.Services
                 {
                     this.ProcessWheres(jsonObj.Wheres);
                 }
+                if (jsonObj != null && jsonObj.Orders != null)
+                {
+                    this._orders = jsonObj.Orders.ToList();
+                }
             }
             catch
             {
@@ -122,6 +127,10 @@ namespace Tots.DbFilter.Services
                 if (jsonObj != null && jsonObj.Wheres != null)
                 {
                     this.ProcessWheres(jsonObj.Wheres);
+                }
+                if (jsonObj != null && jsonObj.Orders != null)
+                {
+                    this._orders = jsonObj.Orders.ToList();
                 }
 
             }
@@ -166,6 +175,11 @@ namespace Tots.DbFilter.Services
         public int GetPerPage()
         {
             return this._perPage;
+        }
+
+        public List<OrderEntity> GetOrders()
+        {
+            return this._orders;
         }
 
         public List<AbstractWhere> GetWheres()
