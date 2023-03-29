@@ -35,10 +35,6 @@ namespace Tots.DbFilter.Wheres
                 return PredicateBuilderExtension.Equal<T>(key, valueInt);
             }
 
-            if(value is bool){
-                return PredicateBuilderExtension.Equal<T>(key, (bool)value);
-            }
-
             return PredicateBuilderExtension.Equal<T>(key, value.ToString()!);
         }
     }

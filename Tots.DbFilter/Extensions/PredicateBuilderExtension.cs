@@ -27,7 +27,7 @@ namespace Tots.DbFilter.Extensions
         public static Expression<Func<T, bool>> Equal<T>(string key, dynamic? value)
         {
             // Verificar si el primer key es un List y en un futuro que pueda ser recursivo
-            if (IsRelation<T>(key))
+            if (IsRelationList<T>(key))
             {
                 var split = key.Split(".");
                 ParameterExpression paramC = Expression.Parameter(typeof(T), "c");
@@ -44,6 +44,24 @@ namespace Tots.DbFilter.Extensions
                 LambdaExpression lambdaO = Expression.Lambda(equal, paramO);
                 MethodCallExpression any = Expression.Call(typeof(Enumerable), "Any", new Type[] { typeOrder }, memberOrders, lambdaO);
                 return Expression.Lambda<Func<T, bool>>(any, paramC);
+            }else if (IsRelation<T>(key))
+            {
+                var split = key.Split(".");
+                var parameterI = Expression.Parameter(typeof(T));
+                var parameterRel = Expression.Parameter(typeof(T), "p");
+                MemberExpression memberOrders = Expression.Property(parameterRel, split[0]);
+                
+                //Type typeRel = GetType<T>(key);
+                MemberExpression memberOrderType = Expression.Property(memberOrders, split[1]);
+
+                var propertyRel = getProperty<T>(key);
+                var typeRel = Nullable.GetUnderlyingType(propertyRel.PropertyType) ?? propertyRel.PropertyType;
+
+                var convertedValue = Convert.ChangeType(value, typeRel);
+                var valueExpRel = Expression.Constant(convertedValue, typeRel);
+                var exprRel = Expression.Equal(memberOrderType, valueExpRel);
+                LambdaExpression lambdaO = Expression.Lambda(exprRel, parameterRel);
+                return (Expression<Func<T, bool>>)lambdaO;
             }
 
 
@@ -52,11 +70,8 @@ namespace Tots.DbFilter.Extensions
             var propertyParameter = getParameterExperession(parameter, key);
             var property = Expression.Property(propertyParameter, prop);
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-            var valueExp = Expression.Constant(value);
-            //var nullExp = Expression.Constant(null, type);
+            var valueExp = Expression.Constant(Convert.ChangeType(value, type));
             var expr = Expression.Equal(property, valueExp);
-            // Probar esto
-            //var expr = Expression.Condition(Expression.Equal(valueExp, Expression.Constant(null)), Expression.Equal(property, nullExp), Expression.Equal(property, Expression.Convert(valueExp, type)));
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
             return resultexp;
         }
@@ -241,6 +256,29 @@ namespace Tots.DbFilter.Extensions
             return expr;
         }
 
+        public static Type GetType<T>(string name)
+        {
+            var split = name.Split(".");
+            var type = typeof(T);
+
+            PropertyInfo result = null;
+            foreach (var item in split)
+            {
+                result = type.GetProperty(item);
+
+                if (result.PropertyType.IsGenericType && result.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    type = result.PropertyType.GetGenericArguments()[0];
+                }
+                else
+                {
+                    type = result.PropertyType;
+                }
+
+            }
+            return type;
+        }
+
         public static Type GetTypeReal<T>(string name)
         {
             var split = name.Split(".");
@@ -265,7 +303,7 @@ namespace Tots.DbFilter.Extensions
             return type;
         }
 
-        public static bool IsRelation<T>(string name)
+        public static bool IsRelationList<T>(string name)
         {
             var split = name.Split(".");
             var type = typeof(T);
@@ -285,6 +323,16 @@ namespace Tots.DbFilter.Extensions
                 }
 
             }
+            return false;
+        }
+        public static bool IsRelation<T>(string name)
+        {
+            var split = name.Split(".");
+            if (split.Count() > 1)
+            {
+                return true;
+            }
+
             return false;
         }
     }
