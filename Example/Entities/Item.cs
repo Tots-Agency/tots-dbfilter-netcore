@@ -1,4 +1,7 @@
-﻿namespace Example.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+namespace Example.Entities
 {
     public class Item
     {
@@ -10,7 +13,19 @@
         public int Location { get; set; }
         public int CurrentStock { get; set; }
         public decimal Cost { get; set; }
-        public decimal DdmsId { get; set; }
+        public string DdmsId { get; set; }
         public decimal Price { get; set; }
+        public ItemKindType Kind { get; set; }
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ItemKindType
+    {
+        [Display(Name = "Common")]
+        Common,
+        [Display(Name = "Dispenser")]
+        Dispenser,
+        [Display(Name = "Consumable")]
+        Consumable
     }
 }
