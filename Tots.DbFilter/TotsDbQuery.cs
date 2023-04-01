@@ -162,11 +162,11 @@ namespace Tots.DbFilter
         {
             foreach (string sum in this.GetQueryRequest().GetSums())
             {
-                dynamic itemGroupValue = item.GetType().GetProperty(sum).GetValue(item);
+                //dynamic itemGroupValue = item.GetType().GetProperty(sum).GetValue(item);
 
                 //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
 
-                dynamic itemGrup = GetResultItem(sum, itemGroupValue, resultGroups);
+                dynamic itemGrup = resultGroups.FirstOrDefault();
 
                 dynamic newValue = itemGrup.GetType().GetProperty(sum + "Sum").GetValue(itemGrup);
 
