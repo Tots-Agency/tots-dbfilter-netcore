@@ -136,7 +136,8 @@ namespace Tots.DbFilter
         {
             foreach(string sum in this.GetQueryRequest().GetSums())
             {
-                string firstGroupBy = this.GetQueryRequest().GetGroups()[0];
+                string sumProcessed = sum.FirstCharToUpper();
+                string firstGroupBy = this.GetQueryRequest().GetGroups()[0].ToString().FirstCharToUpper();
 
                 dynamic itemGroupValue = item.GetType().GetProperty(firstGroupBy).GetValue(item);
 
@@ -144,9 +145,9 @@ namespace Tots.DbFilter
 
                 dynamic itemGrup = GetResultItem(firstGroupBy, itemGroupValue, resultGroups);
 
-                dynamic newValue = itemGrup.GetType().GetProperty(firstGroupBy + "Sum").GetValue(itemGrup);
+                dynamic newValue = itemGrup.GetType().GetProperty(sum + "Sum").GetValue(itemGrup);
 
-                item.GetType().GetProperty(firstGroupBy).SetValue(item, newValue);
+                item.GetType().GetProperty(sumProcessed).SetValue(item, newValue);
             }
         }
 
@@ -166,11 +167,13 @@ namespace Tots.DbFilter
 
                 //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
 
+                string sumProcessed = sum.FirstCharToUpper();
+
                 dynamic itemGrup = resultGroups.FirstOrDefault();
 
                 dynamic newValue = itemGrup.GetType().GetProperty(sum + "Sum").GetValue(itemGrup);
 
-                item.GetType().GetProperty(sum).SetValue(item, newValue);
+                item.GetType().GetProperty(sumProcessed).SetValue(item, newValue);
             }
         }
 
