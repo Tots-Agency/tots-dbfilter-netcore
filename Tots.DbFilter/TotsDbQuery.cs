@@ -39,6 +39,34 @@ namespace Tots.DbFilter
             return await Execute(null);
         }
 
+        public IQueryable<T> PreparedQuery()
+        {
+            DbSet<T> dbSet = _context.Set<T>();
+            IQueryable<T> query = dbSet.IgnoreAutoIncludes<T>();
+
+            // Process All Orders
+            bool isFirstOrder = true;
+            foreach (OrderEntity order in this.GetQueryRequest().GetOrders())
+            {
+                query = PredicateBuilderExtension.AddOrderExpression<T>(query, order.Field!, order.Type!, isFirstOrder);
+                isFirstOrder = false;
+            }
+
+            // Process All Withs
+            foreach (string with in this.GetQueryRequest().GetWiths())
+            {
+                query = query.Include(with);
+            }
+
+            // Process All Wheres
+            foreach (AbstractWhere where in this.GetQueryRequest().GetWheres())
+            {
+                query = query.Where(where.ExecutePredicate<T>());
+            }
+
+            return query;
+        }
+
         public async Task<TotsDbListResponse<T>> Execute(ExtraQuery? extraQuery)
         {
             DbSet<T> dbSet = _context.Set<T>();
