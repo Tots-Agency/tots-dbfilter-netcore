@@ -89,6 +89,10 @@ namespace Tots.DbFilter.Services
                 {
                     _wheres.Add(new BetweenWhere(where));
                 }
+                else if (where.Type == AbstractWhere.TYPE_BETWEEN_DATE)
+                {
+                    _wheres.Add(new BetweenDateWhere(where));
+                }
             }
         }
 
