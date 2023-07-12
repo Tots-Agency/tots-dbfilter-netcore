@@ -1,0 +1,15 @@
+trigger:
+  - main
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - checkout: self
+    submodules: true
+  - script: |
+      ls
+    displayName: check location
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)'
+      artifact: 'Repo-GW'
+      publishLocation: 'pipeline'
