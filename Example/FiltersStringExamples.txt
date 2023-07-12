@@ -1,0 +1,11 @@
+﻿Titles
+{"wheres":[{"type":"between","key":"Price","from":14.99,"to":20.01}]}
+{"wheres":[{"type":"between","key":"Price","from":10,"to":25}]}
+{"wheres":[{"type":"between","key":"Royalty","from":10,"to":15}]}
+{"wheres":[{"type":"between","key":"Pubdate","from":"1994-01-01","to":"2023-12-31"}]}
+
+Sales
+{"wheres":[{"type":"between","key":"Qty","from":15,"to":50}]}
+
+Jobs
+{"wheres":[{"type":"between","key":"minLvl","from":10,"to":100}]}
