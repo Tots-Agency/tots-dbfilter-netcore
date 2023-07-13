@@ -3,19 +3,22 @@ using MediatR;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using PubsDBFirst;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var configuration = builder.Configuration;
 // Get Configuration file
-IConfigurationBuilder configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-IConfigurationRoot configuration = configurationBuilder.Build();
-string? testConfig = configuration.GetConnectionString("Herald");
+//IConfigurationBuilder configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
+//IConfigurationRoot configuration = configurationBuilder.Build();
+//string? testConfig = configuration.GetConnectionString("Herald");
 
 // Activate DB Context
 builder.Services.AddDbContext<GreenwayContext>(option => option.UseSqlServer(configuration.GetConnectionString("Herald")));
+builder.Services.AddDbContext<PubsContext>(option => option.UseSqlServer(configuration.GetConnectionString("Pubs")));
 
 // Config MediatR
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
 // Add services to the container.
 

@@ -96,9 +96,34 @@ namespace Tots.DbFilter.Extensions
             if (prop.PropertyType == typeof(DateTime?) || prop.PropertyType == typeof(DateTime))
             {
                 return BetweenDates<T>(key, DateTime.Parse(minValue.ToString()), DateTime.Parse(maxValue.ToString()));
+            }else if (prop.PropertyType == typeof(decimal?) || prop.PropertyType == typeof(decimal))
+            {
+                return BetweenNumbers<T, decimal>(key, 
+                    (minValue is JsonElement)? minValue.GetDecimal() : decimal.Parse(minValue.ToString()),
+                    (maxValue is JsonElement) ? maxValue.GetDecimal() : decimal.Parse(maxValue.ToString()));
             }
-            
-            return BetweenNumbers<T>(key, minValue, maxValue);
+            else if (prop.PropertyType == typeof(long?) || prop.PropertyType == typeof(long))
+            {
+                return BetweenNumbers<T, long>(key,
+                    (minValue is JsonElement) ? minValue.GetInt64() : long.Parse(minValue.ToString()),
+                    (maxValue is JsonElement) ? maxValue.GetInt64() : long.Parse(maxValue.ToString()));
+            }
+            else if (prop.PropertyType == typeof(short?) || prop.PropertyType == typeof(short))
+            {
+                return BetweenNumbers<T, short>(key,
+                    (minValue is JsonElement) ? minValue.GetInt16() : short.Parse(minValue.ToString()),
+                    (maxValue is JsonElement) ? maxValue.GetInt16() : short.Parse(maxValue.ToString()));
+            }
+            else if (prop.PropertyType == typeof(byte?) || prop.PropertyType == typeof(byte))
+            {
+                return BetweenNumbers<T, byte>(key,
+                    (minValue is JsonElement) ? minValue.GetByte() : byte.Parse(minValue.ToString()),
+                    (maxValue is JsonElement) ? maxValue.GetByte() : byte.Parse(maxValue.ToString()));
+            }
+
+            return BetweenNumbers<T, int>(key,
+                    (minValue is JsonElement) ? minValue.GetInt32() : int.Parse(minValue.ToString()),
+                    (maxValue is JsonElement) ? maxValue.GetInt32() : int.Parse(maxValue.ToString()));
         }
 
         public static Expression<Func<T, bool>> BetweenDates<T>(string key, DateTime? startDate, DateTime? endDate)
@@ -129,12 +154,23 @@ namespace Tots.DbFilter.Extensions
             return resultexp;
         }
 
-        public static Expression<Func<T, bool>> BetweenNumbers<T>(string propertyName, int minValue, int maxValue)
+        public static Expression<Func<T, bool>> BetweenNumbers<T, P>(string propertyName, P minValue, P maxValue) where P : struct
         {
             var parameter = Expression.Parameter(typeof(T), "x");
             var property = Expression.Property(parameter, propertyName);
-            var minValueConstant = Expression.Constant(minValue);
-            var maxValueConstant = Expression.Constant(maxValue);
+            ConstantExpression minValueConstant;
+            ConstantExpression maxValueConstant;
+
+            if (property.Type == typeof(P?))
+            {
+                minValueConstant = Expression.Constant(minValue, typeof(P?));
+                maxValueConstant = Expression.Constant(maxValue, typeof(P?));
+            }
+            else
+            {
+                minValueConstant = Expression.Constant(minValue);
+                maxValueConstant = Expression.Constant(maxValue);
+            }
 
             var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, minValueConstant);
             var lessThanOrEqual = Expression.LessThanOrEqual(property, maxValueConstant);
@@ -144,7 +180,6 @@ namespace Tots.DbFilter.Extensions
             var lambdaExpression = Expression.Lambda<Func<T, bool>>(binaryExpression, parameter);
             return lambdaExpression;
         }
-
 
         public static Expression<Func<T, bool>> Likes<T>(List<string> keys, dynamic value)
         {
