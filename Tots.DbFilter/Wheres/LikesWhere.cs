@@ -42,6 +42,11 @@ namespace Tots.DbFilter.Wheres
 
             return false;
         }
+
+        public List<string> GetKeys()
+        {
+            return this._keys;
+        }
     }
 }
 
