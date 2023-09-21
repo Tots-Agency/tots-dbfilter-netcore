@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
+using Tots.DbFilter.Entities;
+using Tots.DbFilter.Extensions;
 using Tots.DbFilter.Requests;
 using Tots.DbFilter.Responses;
 using Tots.DbFilter.Services;
 using Tots.DbFilter.Wheres;
-using Microsoft.EntityFrameworkCore;
-using Tots.DbFilter.Extensions;
-using System.Linq.Dynamic.Core;
-using Tots.DbFilter.Entities;
 
 namespace Tots.DbFilter
 {
-	public class TotsDbQuery<T> where T : class
+    public class TotsDbQuery<T> where T : class
     {
         protected TotsDbQueryService<T> _request;
         protected DbContext _context;
@@ -72,7 +70,14 @@ namespace Tots.DbFilter
             DbSet<T> dbSet = _context.Set<T>();
             IQueryable<T> query = dbSet.IgnoreAutoIncludes<T>();
 
-            if(extraQuery != null){
+            // Process All Withs
+            foreach (string with in this.GetQueryRequest().GetWiths())
+            {
+                query = query.Include(with);
+            }
+
+            if (extraQuery != null)
+            {
                 query = extraQuery(query);
             }
 
@@ -82,12 +87,6 @@ namespace Tots.DbFilter
             {
                 query = PredicateBuilderExtension.AddOrderExpression<T>(query, order.Field!, order.Type!, isFirstOrder);
                 isFirstOrder = false;
-            }
-
-            // Process All Withs
-            foreach (string with in this.GetQueryRequest().GetWiths())
-            {
-                query = query.Include(with);
             }
 
             // Process All Wheres
@@ -124,9 +123,8 @@ namespace Tots.DbFilter
             }
 
             int lastPage = int.Parse((count / this._request.GetPerPage()).ToString());
-            if(lastPage == 0){
+            if (lastPage == 0)
                 lastPage = 1;
-            }
 
             return new TotsDbListResponse<T>
             {
@@ -154,7 +152,7 @@ namespace Tots.DbFilter
 
         protected void ProcessSumsColumns(List<T> result, List<dynamic> resultGroups)
         {
-            foreach(T item in result)
+            foreach (T item in result)
             {
                 ProcessSumInItem(item, resultGroups);
             }
@@ -168,8 +166,6 @@ namespace Tots.DbFilter
                 string firstGroupBy = this.GetQueryRequest().GetGroups()[0].ToString().FirstCharToUpper();
 
                 dynamic itemGroupValue = item.GetType().GetProperty(firstGroupBy).GetValue(item);
-
-                //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
 
                 dynamic itemGrup = GetResultItem(firstGroupBy, itemGroupValue, resultGroups);
 
@@ -191,10 +187,6 @@ namespace Tots.DbFilter
         {
             foreach (string sum in this.GetQueryRequest().GetSums())
             {
-                //dynamic itemGroupValue = item.GetType().GetProperty(sum).GetValue(item);
-
-                //dynamic itemGrup = resultGroups.Find(x => x.FirstItem.Status == itemGroupValue); // Funciona
-
                 string sumProcessed = sum.FirstCharToUpper();
 
                 dynamic itemGrup = resultGroups.FirstOrDefault();
@@ -207,7 +199,7 @@ namespace Tots.DbFilter
 
         protected dynamic GetResultItem(string key, dynamic value, List<dynamic> resultGroups)
         {
-            foreach(dynamic item in resultGroups)
+            foreach (dynamic item in resultGroups)
             {
                 dynamic firstItem = item.GetType().GetProperty("FirstItem").GetValue(item);
                 dynamic valueKey = firstItem.GetType().GetProperty(key).GetValue(firstItem);
