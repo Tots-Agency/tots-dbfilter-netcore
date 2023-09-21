@@ -8,8 +8,8 @@ using System.Reflection.Metadata;
 
 namespace Tots.DbFilter.Extensions
 {
-	public static class PredicateBuilderExtension
-	{
+    public static class PredicateBuilderExtension
+    {
         public static Expression<Func<T, bool>> True<T>() { return f => true; }
         public static Expression<Func<T, bool>> False<T>() { return f => false; }
 
@@ -37,6 +37,11 @@ namespace Tots.DbFilter.Extensions
                 ParameterExpression paramO = Expression.Parameter(typeOrder, "o");
                 MemberExpression memberOrderType = Expression.Property(paramO, split[1]);
 
+                foreach (var item in split.Skip(2))
+                {
+                    memberOrderType = Expression.Property(memberOrderType, item);
+                }
+
                 var propFinal = getProperty<T>(key);
 
                 var converter = TypeDescriptor.GetConverter(propFinal.PropertyType);
@@ -45,15 +50,19 @@ namespace Tots.DbFilter.Extensions
                 LambdaExpression lambdaO = Expression.Lambda(equal, paramO);
                 MethodCallExpression any = Expression.Call(typeof(Enumerable), "Any", new Type[] { typeOrder }, memberOrders, lambdaO);
                 return Expression.Lambda<Func<T, bool>>(any, paramC);
-            }else if (IsRelation<T>(key))
+            }
+            else if (IsRelation<T>(key))
             {
                 var split = key.Split(".");
-                var parameterI = Expression.Parameter(typeof(T));
                 var parameterRel = Expression.Parameter(typeof(T), "p");
                 MemberExpression memberOrders = Expression.Property(parameterRel, split[0]);
-                
-                //Type typeRel = GetType<T>(key);
+
                 MemberExpression memberOrderType = Expression.Property(memberOrders, split[1]);
+
+                foreach (var item in split.Skip(2))
+                {
+                    memberOrderType = Expression.Property(memberOrderType, item);
+                }
 
                 var propertyRel = getProperty<T>(key);
                 var typeRel = Nullable.GetUnderlyingType(propertyRel.PropertyType) ?? propertyRel.PropertyType;
@@ -64,7 +73,6 @@ namespace Tots.DbFilter.Extensions
                 LambdaExpression lambdaO = Expression.Lambda(exprRel, parameterRel);
                 return (Expression<Func<T, bool>>)lambdaO;
             }
-
 
             var prop = getProperty<T>(key);
             var parameter = Expression.Parameter(typeof(T));
@@ -83,7 +91,6 @@ namespace Tots.DbFilter.Extensions
             var parameter = Expression.Parameter(typeof(T));
             var propertyParameter = getParameterExperession(parameter, key);
             var property = Expression.Property(propertyParameter, prop);
-            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
             var valueExp = Expression.Constant(value);
             var expr = Expression.Equal(Expression.Call(property, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExp), Expression.Constant(true));
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
@@ -96,10 +103,11 @@ namespace Tots.DbFilter.Extensions
             if (prop.PropertyType == typeof(DateTime?) || prop.PropertyType == typeof(DateTime))
             {
                 return BetweenDates<T>(key, DateTime.Parse(minValue.ToString()), DateTime.Parse(maxValue.ToString()));
-            }else if (prop.PropertyType == typeof(decimal?) || prop.PropertyType == typeof(decimal))
+            }
+            else if (prop.PropertyType == typeof(decimal?) || prop.PropertyType == typeof(decimal))
             {
-                return BetweenNumbers<T, decimal>(key, 
-                    (minValue is JsonElement)? minValue.GetDecimal() : decimal.Parse(minValue.ToString()),
+                return BetweenNumbers<T, decimal>(key,
+                    (minValue is JsonElement) ? minValue.GetDecimal() : decimal.Parse(minValue.ToString()),
                     (maxValue is JsonElement) ? maxValue.GetDecimal() : decimal.Parse(maxValue.ToString()));
             }
             else if (prop.PropertyType == typeof(long?) || prop.PropertyType == typeof(long))
@@ -139,7 +147,8 @@ namespace Tots.DbFilter.Extensions
             {
                 startDateConstant = Expression.Constant(startDate, typeof(DateTime?));
                 endDateConstant = Expression.Constant(endDate, typeof(DateTime?));
-            } else
+            }
+            else
             {
                 startDateConstant = Expression.Constant(startDate);
                 endDateConstant = Expression.Constant(endDate);
@@ -298,7 +307,8 @@ namespace Tots.DbFilter.Extensions
             if (isFirst && typeOrd == "asc")
             {
                 command = "OrderBy";
-            }else if(isFirst && typeOrd == "desc")
+            }
+            else if (isFirst && typeOrd == "desc")
             {
                 command = "OrderByDescending";
             }
