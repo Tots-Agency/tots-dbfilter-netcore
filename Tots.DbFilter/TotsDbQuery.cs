@@ -128,9 +128,9 @@ namespace Tots.DbFilter
 
             return new TotsDbListResponse<T>
             {
-                CurrentPage = this._request.GetPage(),
-                PerPage = this._request.GetPerPage(),
-                LastPage = lastPage,
+                Current_page = this._request.GetPage(),
+                Per_page = this._request.GetPerPage(),
+                Last_page = lastPage,
                 Data = result,
                 Total = count
             };
