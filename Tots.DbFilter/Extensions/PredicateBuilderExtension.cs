@@ -45,7 +45,8 @@ namespace Tots.DbFilter.Extensions
                 var propFinal = getProperty<T>(key);
 
                 var converter = TypeDescriptor.GetConverter(propFinal.PropertyType);
-                ConstantExpression constantOrderType = Expression.Constant(converter.ConvertFrom(value), propFinal.PropertyType);
+
+                ConstantExpression constantOrderType = Expression.Constant(converter.ConvertFrom(value.ToString()), propFinal.PropertyType);
                 BinaryExpression equal = Expression.Equal(memberOrderType, constantOrderType);
                 LambdaExpression lambdaO = Expression.Lambda(equal, paramO);
                 MethodCallExpression any = Expression.Call(typeof(Enumerable), "Any", new Type[] { typeOrder }, memberOrders, lambdaO);
