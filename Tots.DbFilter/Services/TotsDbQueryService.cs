@@ -173,6 +173,9 @@ namespace Tots.DbFilter.Services
 
         public int GetPage()
         {
+            if(_page == 0)
+                _page = 1;
+
             return this._page;
         }
 
