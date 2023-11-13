@@ -79,10 +79,21 @@ namespace Tots.DbFilter.Extensions
             var parameter = Expression.Parameter(typeof(T));
             var propertyParameter = getParameterExperession(parameter, key);
             var property = Expression.Property(propertyParameter, prop);
-            var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-            var valueExp = Expression.Constant(Convert.ChangeType(value, type));
-            var expr = Expression.Equal(property, valueExp);
+            BinaryExpression expr;
+            if (typeof(int?).IsAssignableFrom(property.Type))
+            {
+                var valueExp = Expression.Constant((int?)value, prop.PropertyType);
+                expr = Expression.Equal(property, valueExp);  
+            }
+            else
+            {
+                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                var valueExp = Expression.Constant(Convert.ChangeType(value, type));
+                expr = Expression.Equal(property, valueExp);
+            }
+
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
+
             return resultexp;
         }
 
