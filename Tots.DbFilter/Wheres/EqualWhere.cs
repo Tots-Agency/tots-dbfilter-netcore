@@ -30,7 +30,7 @@ namespace Tots.DbFilter.Wheres
             }
 
             int valueInt;
-            if (Int32.TryParse(value.ToString(), out valueInt))
+            if (!value.ToString().Contains(" ") && Int32.TryParse(value.ToString(), out valueInt))
             {
                 return PredicateBuilderExtension.Equal<T>(key, valueInt);
             }
