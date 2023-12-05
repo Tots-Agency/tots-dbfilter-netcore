@@ -221,7 +221,7 @@ namespace Tots.DbFilter.Extensions
                 list.Add(converter.ConvertFrom(value.ToString()));
                 var valueExp = Expression.Constant(list);
 
-                BinaryExpression expr = Expression.Equal(Expression.Call(valueExp, valueExp.Type.GetMethod("Contains"), property), Expression.Constant(true));
+                BinaryExpression expr = Expression.Equal(Expression.Call(property, valueExp.Type.GetMethod("Contains"), valueExp), Expression.Constant(true));
 
                 if (isFirst)
                 {
