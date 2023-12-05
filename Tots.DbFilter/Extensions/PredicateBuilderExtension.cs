@@ -215,13 +215,9 @@ namespace Tots.DbFilter.Extensions
                 var property = Expression.Property(propertyParameter, prop);
                 var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
 
-                Type t = typeof(List<>).MakeGenericType(type);
-                var list = (IList)Activator.CreateInstance(t);
-                var converter = TypeDescriptor.GetConverter(type);
-                list.Add(converter.ConvertFrom(value.ToString()));
-                var valueExp = Expression.Constant(list);
+                var valueExp = Expression.Constant(value);
 
-                BinaryExpression expr = Expression.Equal(Expression.Call(property, valueExp.Type.GetMethod("Contains"), valueExp), Expression.Constant(true));
+                BinaryExpression expr = Expression.Equal(Expression.Call(property, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExp), Expression.Constant(true));
 
                 if (isFirst)
                 {
