@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Reflection;
-using System.Linq.Expressions;
-using System.Text.Json;
+﻿using System.Collections;
 using System.ComponentModel;
-using System.Reflection.Metadata;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text.Json;
 
 namespace Tots.DbFilter.Extensions
 {
@@ -83,7 +81,7 @@ namespace Tots.DbFilter.Extensions
             if (typeof(int?).IsAssignableFrom(property.Type))
             {
                 var valueExp = Expression.Constant((int?)value, prop.PropertyType);
-                expr = Expression.Equal(property, valueExp);  
+                expr = Expression.Equal(property, valueExp);
             }
             else
             {
@@ -314,7 +312,7 @@ namespace Tots.DbFilter.Extensions
             return expr;
         }
 
-        public static IQueryable<T> AddOrderExpression<T>(IQueryable<T> query, String field, String typeOrd, bool isFirst)
+        private static string GetCommand(String typeOrd, bool isFirst)
         {
             String command = "OrderBy";
             if (isFirst && typeOrd == "asc")
@@ -334,6 +332,13 @@ namespace Tots.DbFilter.Extensions
                 command = "ThenByDescending";
             }
 
+            return command;
+        }
+
+        public static IQueryable<T> AddOrderExpression<T>(IQueryable<T> query, String field, String typeOrd, bool isFirst)
+        {
+            String command = GetCommand(typeOrd, isFirst);
+
             var type = typeof(T);
             var parameter = Expression.Parameter(type, "p");
             var prop = getProperty<T>(field);
@@ -341,6 +346,28 @@ namespace Tots.DbFilter.Extensions
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, prop.PropertyType }, query.Expression, Expression.Quote(orderByExpression));
             return query.Provider.CreateQuery<T>(resultExpression);
+        }
+
+        public static List<T> AddOrderExpressionWithFieldComputed<T>(IList<T> query, String field, String typeOrd, bool isFirst)
+        {
+            String command = GetCommand(typeOrd, isFirst);
+
+            PropertyInfo property = typeof(T).GetProperty(field);
+
+            var parameter = Expression.Parameter(typeof(T), "x");
+            var propertyAccess = Expression.Property(parameter, property);
+            var lambda = Expression.Lambda(propertyAccess, parameter);
+
+            var methodName = command;
+            var orderByExpression = Expression.Call(
+                typeof(Queryable),
+                methodName,
+                new[] { typeof(T), property.PropertyType },
+                query.AsQueryable().Expression,
+                Expression.Quote(lambda)
+            );
+
+            return query.AsQueryable().Provider.CreateQuery<T>(orderByExpression).ToList();
         }
 
         public static Type GetType<T>(string name)
