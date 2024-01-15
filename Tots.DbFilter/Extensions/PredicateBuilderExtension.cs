@@ -80,15 +80,9 @@ namespace Tots.DbFilter.Extensions
             BinaryExpression expr;
             ConstantExpression valueExp;
             if (typeof(int?).IsAssignableFrom(property.Type))
-            {
                 valueExp = Expression.Constant((int?)value, prop.PropertyType);
-                //expr = Expression.Equal(property, valueExp);
-            }
             else if (typeof(long?).IsAssignableFrom(property.Type))
-            {
                 valueExp = Expression.Constant((long?)value, prop.PropertyType);
-                //expr = Expression.Equal(property, valueExp);
-            }
             else
             {
                 var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
