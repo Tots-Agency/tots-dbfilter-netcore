@@ -19,7 +19,7 @@ namespace Tots.DbFilter.Wheres
             string key = this.CleanKey(this.GetKey());
             var value = this.GetValue();
 
-            if (value == null)
+            if (value == null || string.IsNullOrEmpty(value.ToString()))
             {
                 return PredicateBuilderExtension.Equal<T>(key, null);
             }
