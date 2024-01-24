@@ -23,7 +23,7 @@ namespace Tots.DbFilter.Extensions
             return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(expr1.Body, invokedExpr), expr1.Parameters);
         }
 
-        public static Expression<Func<T, bool>> Equal<T>(string key, dynamic? value)
+        public static Expression<Func<T, bool>> Equal<T>(string key, dynamic? value, bool isDenied)
         {
             // Verificar si el primer key es un List y en un futuro que pueda ser recursivo
             if (IsRelationList<T>(key))
@@ -45,7 +45,10 @@ namespace Tots.DbFilter.Extensions
                 var converter = TypeDescriptor.GetConverter(propFinal.PropertyType);
 
                 ConstantExpression constantOrderType = Expression.Constant(converter.ConvertFrom(value.ToString()), propFinal.PropertyType);
-                BinaryExpression equal = Expression.Equal(memberOrderType, constantOrderType);
+                BinaryExpression equal = !isDenied ?
+                    Expression.Equal(memberOrderType, constantOrderType) :
+                    Expression.NotEqual(memberOrderType, constantOrderType);
+
                 LambdaExpression lambdaO = Expression.Lambda(equal, paramO);
                 MethodCallExpression any = Expression.Call(typeof(Enumerable), "Any", new Type[] { typeOrder }, memberOrders, lambdaO);
                 return Expression.Lambda<Func<T, bool>>(any, paramC);
@@ -68,7 +71,10 @@ namespace Tots.DbFilter.Extensions
 
                 var convertedValue = Convert.ChangeType(value, typeRel);
                 var valueExpRel = Expression.Constant(convertedValue, typeRel);
-                var exprRel = Expression.Equal(memberOrderType, valueExpRel);
+                var exprRel = !isDenied ?
+                    Expression.Equal(memberOrderType, valueExpRel) :
+                    Expression.NotEqual(memberOrderType, valueExpRel);
+
                 LambdaExpression lambdaO = Expression.Lambda(exprRel, parameterRel);
                 return (Expression<Func<T, bool>>)lambdaO;
             }
@@ -88,7 +94,10 @@ namespace Tots.DbFilter.Extensions
                 var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
                 valueExp = Expression.Constant(Convert.ChangeType(value, type));
             }
-            expr = Expression.Equal(property, valueExp);
+
+            expr = !isDenied ?
+                    Expression.Equal(property, valueExp) :
+                    Expression.NotEqual(property, valueExp);
 
             var resultexp = Expression.Lambda<Func<T, bool>>(expr, parameter);
 

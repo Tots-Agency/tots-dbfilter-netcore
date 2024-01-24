@@ -7,4 +7,3 @@ namespace Tots.DbFilter.Entities
         public OrderEntity[]? Orders { get; set; }
     }
 }
-
