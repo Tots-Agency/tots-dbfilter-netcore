@@ -16,6 +16,7 @@ namespace Tots.DbFilter.Wheres
         protected string _type = "";
         protected string _key = "";
         protected dynamic? _value;
+        protected bool _isDenied;
 
         abstract public Expression<Func<T, bool>> ExecutePredicate<T>();
 
@@ -47,6 +48,11 @@ namespace Tots.DbFilter.Wheres
         public object? GetValue()
         {
             return this._value;
+        }
+
+        public bool GetDenied()
+        {
+            return this._isDenied;
         }
     }
 }

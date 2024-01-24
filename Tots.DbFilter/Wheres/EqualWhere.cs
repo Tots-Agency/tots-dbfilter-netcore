@@ -12,6 +12,7 @@ namespace Tots.DbFilter.Wheres
             this._type = AbstractWhere.TYPE_EQUAL;
             this._key = data.Key ?? "";
             this._value = data.Value ?? "";
+            this._isDenied = data.IsDenied;
         }
 
         public override Expression<Func<T, bool>> ExecutePredicate<T>()
@@ -21,21 +22,21 @@ namespace Tots.DbFilter.Wheres
 
             if (value == null || string.IsNullOrEmpty(value.ToString()))
             {
-                return PredicateBuilderExtension.Equal<T>(key, null);
+                return PredicateBuilderExtension.Equal<T>(key, null, _isDenied);
             }
 
             if (value is bool)
             {
-                return PredicateBuilderExtension.Equal<T>(key, (bool)value);
+                return PredicateBuilderExtension.Equal<T>(key, (bool)value, _isDenied);
             }
 
             int valueInt;
             if (!value.ToString().Contains(" ") && Int32.TryParse(value.ToString(), out valueInt))
             {
-                return PredicateBuilderExtension.Equal<T>(key, valueInt);
+                return PredicateBuilderExtension.Equal<T>(key, valueInt, _isDenied);
             }
 
-            return PredicateBuilderExtension.Equal<T>(key, value.ToString()!);
+            return PredicateBuilderExtension.Equal<T>(key, value.ToString()!, _isDenied);
         }
     }
 }
