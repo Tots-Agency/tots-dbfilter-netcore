@@ -9,7 +9,6 @@ namespace Tots.DbFilter.Entities
         public List<string>? Keys { get; set; }
         public dynamic? From { get; set; }
         public dynamic? To { get; set; }
-        public bool IsDenied { get; set; }
     }
 }
 
