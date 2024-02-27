@@ -268,7 +268,7 @@ namespace Tots.DbFilter.Extensions
 
             Expression resultExpr = concatExpr.Body;
 
-            foreach (var item in keys)
+            foreach (var item in keys.Skip(1))
             {
                 prop = getProperty<T>(item);
                 propertyParameter = getParameterExperession(parameter, item);
@@ -279,7 +279,12 @@ namespace Tots.DbFilter.Extensions
                     resultExpr =
                         Expression.Call(
                             typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }),
-                            property,
+                            resultExpr,
+                            property);
+
+                    resultExpr = Expression.Call(
+                            typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }),
+                            resultExpr,
                             Expression.Constant(" "));
                 }
                 else
