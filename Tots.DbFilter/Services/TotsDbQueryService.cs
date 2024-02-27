@@ -85,9 +85,9 @@ namespace Tots.DbFilter.Services
                 {
                     _wheres.Add(new LikeWhere(where));
                 }
-                else if (where.Type == AbstractWhere.TYPE_LIKES)
+                else if (where.Type == AbstractWhere.TYPE_LIKESCONCAT)
                 {
-                    _wheres.Add(new LikesWhere(where));
+                    _wheres.Add(new LikesConcatWhere(where));
                 }
                 else if (where.Type == AbstractWhere.TYPE_BETWEEN)
                 {

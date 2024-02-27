@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Tots-Agency/tots-dbfilter-netcore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.0.37</Version>
+    <Version>1.0.38</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="Wheres\" />
     <Folder Include="Responses\" />
     <Folder Include="Requests\" />
     <Folder Include="Services\" />

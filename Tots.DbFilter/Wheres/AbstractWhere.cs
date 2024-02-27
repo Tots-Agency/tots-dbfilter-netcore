@@ -7,6 +7,7 @@ namespace Tots.DbFilter.Wheres
 	abstract public class AbstractWhere
 	{
         public static string TYPE_LIKES = "likes";
+        public static string TYPE_LIKESCONCAT = "likes-concat";
         public static string TYPE_EQUAL = "equal";
         public static string TYPE_NOTEQUAL = "notequal";
         public static string TYPE_IN = "in";
