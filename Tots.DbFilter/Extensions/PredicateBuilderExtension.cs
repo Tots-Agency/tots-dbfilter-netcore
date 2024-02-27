@@ -1,8 +1,16 @@
-﻿using System.Collections;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Text.Json;
+using System.Xml;
 
 namespace Tots.DbFilter.Extensions
 {
@@ -241,36 +249,57 @@ namespace Tots.DbFilter.Extensions
             return predicate;
         }
 
-        public static Expression<Func<T, bool>> Likes2<T>(List<string> keys, dynamic value)
+        public static Expression<Func<T, bool>> LikesConcat<T>(List<string> keys, string value)
         {
-            Expression<Func<T, bool>> predicate = PredicateBuilderExtension.True<T>();
+            var prop = getProperty<T>(keys[0]);
             var parameter = Expression.Parameter(typeof(T));
+            var propertyParameter = getParameterExperession(parameter, keys[0]);
+            var property = Expression.Property(propertyParameter, prop);
+            BinaryExpression expr;
+            ConstantExpression valueExp;
 
-            bool isFirst = true;
-            foreach (string key in keys)
+
+            Expression<Func<string>> concatExpr = Expression.Lambda<Func<string>>(
+                Expression.Call(
+                   typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }),
+                   property,
+                   Expression.Constant(" ")
+               ));
+
+            Expression resultExpr = concatExpr.Body;
+
+            foreach (var item in keys)
             {
-                var prop = getProperty<T>(key);
-                var propertyParameter = getParameterExperession(parameter, key);
-                var property = Expression.Property(propertyParameter, prop);
-                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                prop = getProperty<T>(item);
+                propertyParameter = getParameterExperession(parameter, item);
+                property = Expression.Property(propertyParameter, prop);
 
-                var valueExp = Expression.Constant(value);
-
-                BinaryExpression expr = Expression.Equal(Expression.Call(property, typeof(string).GetMethod("Contains", new[] { typeof(string) }), valueExp), Expression.Constant(true));
-
-                if (isFirst)
+                if (keys.IndexOf(item) != keys.Count() - 1)
                 {
-                    predicate = Expression.Lambda<Func<T, bool>>(expr, parameter);
-                    isFirst = false;
+                    resultExpr =
+                        Expression.Call(
+                            typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }),
+                            property,
+                            Expression.Constant(" "));
                 }
                 else
                 {
-                    predicate = Expression.Lambda<Func<T, bool>>(Expression.OrElse(predicate.Body, expr), parameter);
+                    resultExpr = Expression.Call(
+                            typeof(string).GetMethod("Concat", new[] { typeof(string), typeof(string) }),
+                            resultExpr,
+                            property);
                 }
-
             }
 
-            return predicate;
+            Expression<Func<string>> concatExprNew = Expression.Lambda<Func<string>>(resultExpr);
+
+            Expression<Func<string, bool>> containsExpr = s => s.Contains(value);
+
+            Expression conditionExpr = Expression.Invoke(containsExpr, resultExpr);
+
+            var resultexp = Expression.Lambda<Func<T, bool>>(conditionExpr, parameter);
+
+            return resultexp;
         }
 
         public static Expression<Func<T, bool>> Contains<T>(string key, dynamic value)
