@@ -101,6 +101,10 @@ namespace Tots.DbFilter.Services
                 {
                     _wheres.Add(new BetweenDateWhere(where));
                 }
+                else if (where.Type == AbstractWhere.TYPE_NOT_IN)
+                {
+                    _wheres.Add(new NotInWhere(where));
+                }
             }
         }
 

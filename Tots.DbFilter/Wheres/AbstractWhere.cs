@@ -14,6 +14,7 @@ namespace Tots.DbFilter.Wheres
         public static string TYPE_LIKE = "like";
         public static string TYPE_BETWEEN = "between";
         public static string TYPE_BETWEEN_DATE = "between_date";
+        public static string TYPE_NOT_IN = "not-in";
 
         protected string _type = "";
         protected string _key = "";
