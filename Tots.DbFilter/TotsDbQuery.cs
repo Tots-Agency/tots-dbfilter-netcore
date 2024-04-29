@@ -112,7 +112,7 @@ namespace Tots.DbFilter
             }
             else
             {
-                result = query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
+                result = await query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToListAsync();
                 count = await query.CountAsync();
 
                 if (this.GetQueryRequest().GetSums().Count() > 0)
