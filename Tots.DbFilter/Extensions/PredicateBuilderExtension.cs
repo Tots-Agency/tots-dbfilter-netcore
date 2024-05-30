@@ -97,6 +97,8 @@ namespace Tots.DbFilter.Extensions
                 valueExp = Expression.Constant((int?)value, prop.PropertyType);
             else if (typeof(long?).IsAssignableFrom(property.Type))
                 valueExp = Expression.Constant((long?)value, prop.PropertyType);
+            else if (typeof(decimal?).IsAssignableFrom(property.Type))
+                valueExp = Expression.Constant((decimal?)value, prop.PropertyType);
             else
             {
                 var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
