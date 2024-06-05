@@ -68,6 +68,11 @@ namespace Tots.DbFilter
         public async Task<TotsDbListResponse<T>> Execute(ExtraQuery? extraQuery)
         {
             DbSet<T> dbSet = _context.Set<T>();
+            return await ExecuteWithDbSet(dbSet, extraQuery);
+        }
+
+        public async Task<TotsDbListResponse<T>> ExecuteWithDbSet(DbSet<T> dbSet, ExtraQuery? extraQuery)
+        {
             IQueryable<T> query = dbSet.IgnoreAutoIncludes<T>();
 
             // Process All Withs
