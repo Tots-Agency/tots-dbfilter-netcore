@@ -319,7 +319,12 @@ namespace Tots.DbFilter.Extensions
             var property = Expression.Property(propertyParameter, prop);
             var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
 
-            Type t = typeof(List<>).MakeGenericType(type);
+            Type t;
+            if (typeof(DateTime?).IsAssignableFrom(prop.PropertyType))
+                t = typeof(List<>).MakeGenericType(prop.PropertyType);
+            else
+                t = typeof(List<>).MakeGenericType(type);
+
             var list = (IList)Activator.CreateInstance(t);
             var valueDeserialize = JsonSerializer.Deserialize<dynamic[]>(value);
             foreach (var item in valueDeserialize)
