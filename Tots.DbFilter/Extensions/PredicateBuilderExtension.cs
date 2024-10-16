@@ -300,7 +300,7 @@ namespace Tots.DbFilter.Extensions
 
             Expression<Func<string>> concatExprNew = Expression.Lambda<Func<string>>(resultExpr);
 
-            Expression<Func<string, bool>> containsExpr = s => s.Contains(value);
+            Expression<Func<string, bool>> containsExpr = s => s.ToLower().Contains(value.ToLower());
 
             Expression conditionExpr = Expression.Invoke(containsExpr, resultExpr);
 

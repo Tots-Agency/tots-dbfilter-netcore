@@ -105,7 +105,15 @@ namespace Tots.DbFilter
             int count;
             if (this.GetQueryRequest().GetGroups().Count() > 0)
             {
-                result = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
+                if(this._request.GetPerPage() == 0)
+                {
+                    result = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).ToList();
+                }
+                else
+                {
+                    result = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToList();
+                }
+                
                 count = query.GroupBy(PredicateBuilderExtension.GroupByExpressionList<T>(this.GetQueryRequest().GetGroups().ToArray()).Compile()).Select(g => g.First()).Count();
 
                 if (this.GetQueryRequest().GetSums().Count() > 0)
@@ -117,7 +125,14 @@ namespace Tots.DbFilter
             }
             else
             {
-                result = await query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToListAsync();
+                if(this._request.GetPerPage() == 0)
+                {
+                    result = await query.ToListAsync();
+                }
+                else
+                {
+                    result = await query.Skip((this._request!.GetPage() - 1) * this._request.GetPerPage()).Take(this._request.GetPerPage()).ToListAsync();
+                }
                 count = await query.CountAsync();
 
                 if (this.GetQueryRequest().GetSums().Count() > 0)
@@ -126,8 +141,11 @@ namespace Tots.DbFilter
                     this.ProcessSumsColumnsWithoutGroup(result, resultGroups);
                 }
             }
-
-            int lastPage = int.Parse((count / this._request.GetPerPage()).ToString());
+            int lastPage = 1;
+            if(this._request.GetPerPage() != 0){
+                lastPage = int.Parse((count / this._request.GetPerPage()).ToString());
+            }
+            
             if (lastPage == 0)
                 lastPage = 1;
 
