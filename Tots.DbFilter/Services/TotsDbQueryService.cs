@@ -6,7 +6,7 @@ using Tots.DbFilter.Wheres;
 
 namespace Tots.DbFilter.Services
 {
-	public class TotsDbQueryService<T> where T : class
+    public class TotsDbQueryService<T> where T : class
     {
         protected TotsDbListRequest<T> _request;
         protected int _page = 1;
@@ -39,12 +39,12 @@ namespace Tots.DbFilter.Services
             _wheres.Add(where);
         }
         public void AddWhereEqual(string key, dynamic value)
-		{
-			WhereEntity data = new WhereEntity
-			{
-				Key = key,
-				Value = value
-			};
+        {
+            WhereEntity data = new WhereEntity
+            {
+                Key = key,
+                Value = value
+            };
             _wheres.Add(new EqualWhere(data));
         }
 
@@ -157,21 +157,21 @@ namespace Tots.DbFilter.Services
         }
 
         protected void ProcessGroups()
-		{
+        {
             if (this._request.Groups == null || this._request.Groups.Length == 0) return;
 
-			this._groups = this._request.Groups!.Split(",").ToList<string>();
+            this._groups = this._request.Groups!.Split(",").ToList<string>();
         }
 
         protected void ProcessWiths()
-		{
+        {
             if (this._request.Withs == null || this._request.Withs.Length == 0) return;
 
-			this._withs = this._request.Withs!.Split(",").ToList<string>();
+            this._withs = this._request.Withs!.Split(",").ToList<string>();
         }
 
         protected void ProcessSums()
-		{
+        {
             if (this._request.Sums == null || this._request.Sums.Length == 0) return;
 
             this._sums = this._request.Sums!.Split(",").ToList<string>();
@@ -185,7 +185,7 @@ namespace Tots.DbFilter.Services
 
         public int GetPage()
         {
-            if(_page == 0)
+            if (_page == 0)
                 _page = 1;
 
             return this._page;
@@ -218,7 +218,7 @@ namespace Tots.DbFilter.Services
 
             return null;
         }
-        
+
         public List<string> GetGroups()
         {
             return this._groups;

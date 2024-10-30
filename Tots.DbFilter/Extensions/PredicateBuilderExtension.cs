@@ -448,9 +448,22 @@ namespace Tots.DbFilter.Extensions
             var type = typeof(T);
             var parameter = Expression.Parameter(type, "p");
             var prop = getProperty<T>(field);
+            var split = field.Split(".");
+            MemberExpression memberOrders = Expression.Property(parameter, split[0]);
 
-            var propertyAccess = Expression.MakeMemberAccess(parameter, prop);
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            if (split.Count() > 1)
+            {
+                MemberExpression memberOrderType = Expression.Property(memberOrders, split[1]);
+
+                foreach (var item in split.Skip(2))
+                {
+                    memberOrderType = Expression.Property(memberOrderType, item);
+                }
+
+                memberOrders = memberOrderType;
+            }
+
+            var orderByExpression = Expression.Lambda(memberOrders, parameter);
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, prop.PropertyType }, query.Expression, Expression.Quote(orderByExpression));
             return query.Provider.CreateQuery<T>(resultExpression);
         }
